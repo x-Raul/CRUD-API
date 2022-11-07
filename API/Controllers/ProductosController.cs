@@ -10,30 +10,41 @@ namespace API.Controllers
         private static List<Productos> productosv = new List<Productos>
             {
                 new Productos {
-                    Prod_Id = 1,
+                    Id = 1,
                     Prod_Nom = "PC",
                     Prod_Desc = "Compu",
                     Cat_Fk = 1
                 },
                 new Productos {
-                    Prod_Id = 2,
+                    Id = 2,
                     Prod_Nom = "iPhone",
                     Prod_Desc = "Celular",
                     Cat_Fk = 2
                 }
             };
+        //Conexion
+        private readonly DataContext _context;
+
+        public ProductosController(DataContext context)
+        {
+            _context = context;
+        }
+
         //Leer
         [HttpGet]
         public async Task<ActionResult<List<Productos>>> Get()
         {
 
-            return Ok(productosv);
+            //return Ok(productosv);
+            return Ok(await _context.Productos.ToListAsync());
         }
         //Leer por id
         [HttpGet("{id}")]
         public async Task<ActionResult<Productos>> Get(int id)
         {
-            var producto = productosv.Find(p => p.Prod_Id == id);
+            //Id de Productos.cs
+            //var producto = productosv.Find(p => p.Id == id);
+            var producto =  await _context.Productos.FindAsync(id);
             if (producto == null)
             {
                 return BadRequest("Producto no encontrado");
@@ -51,7 +62,8 @@ namespace API.Controllers
         [HttpPut]
         public async Task<ActionResult<List<Productos>>> Update([FromBody] Productos update)
         {
-            var producto = productosv.Find(p => p.Prod_Id == update.Prod_Id);
+            //Id de Productos.cs
+            var producto = productosv.Find(p => p.Id == update.Id);
             if (producto == null)
             {
                 return BadRequest("Producto no encontrado");
@@ -67,7 +79,8 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<List<Productos>>> Delete(int id)
         {
-            var producto = productosv.Find(p => p.Prod_Id == id);
+            //Id de Productos.cs
+            var producto = productosv.Find(p => p.Id == id);
             if (producto == null)
             {
                 return BadRequest("Producto no encontrado");
