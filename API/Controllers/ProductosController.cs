@@ -7,8 +7,8 @@ namespace API.Controllers
     [ApiController]
     public class ProductosController : ControllerBase
     {
-        private static List<Productos> productosv = new List<Productos>
-            {
+        private static List<Productos> productosv = new List<Productos> { };
+ /*           {
                 new Productos {
                     Id = 1,
                     Prod_Nom = "PC",
@@ -21,7 +21,7 @@ namespace API.Controllers
                     Prod_Desc = "Celular",
                     Cat_Fk = 2
                 }
-            };
+            };*/
         //Conexion
         private readonly DataContext _context;
 
@@ -46,47 +46,50 @@ namespace API.Controllers
             //var producto = productosv.Find(p => p.Id == id);
             var producto =  await _context.Productos.FindAsync(id);
             if (producto == null)
-            {
                 return BadRequest("Producto no encontrado");
-            }
             return Ok(producto);
         }
         //Crear
         [HttpPost]
         public async Task<ActionResult<List<Productos>>> Post([FromBody]Productos producto)
         {
-            productosv.Add(producto);
-            return Ok(productosv);
+            _context.Productos.Add(producto);
+            await _context.SaveChangesAsync();
+
+            return Ok(await _context.Productos.ToListAsync());
         }
         //Actualizar
         [HttpPut]
         public async Task<ActionResult<List<Productos>>> Update([FromBody] Productos update)
         {
-            //Id de Productos.cs
-            var producto = productosv.Find(p => p.Id == update.Id);
-            if (producto == null)
-            {
-                return BadRequest("Producto no encontrado");
-            }
-            
-            producto.Prod_Nom = update.Prod_Nom;
-            producto.Prod_Desc = update.Prod_Desc;
-            producto.Cat_Fk = update.Cat_Fk;
 
-            return Ok(productosv);
+            var dbProducto = await _context.Productos.FindAsync(update.Id);
+            if (dbProducto == null)
+                return BadRequest("Producto no encontrado");
+
+            dbProducto.Prod_Nom = update.Prod_Nom;
+            dbProducto.Prod_Desc = update.Prod_Desc;
+            dbProducto.Cat_Fk = update.Cat_Fk;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(await _context.Productos.ToListAsync());
         }
+
+
         //Eliminar
         [HttpDelete("{id}")]
         public async Task<ActionResult<List<Productos>>> Delete(int id)
         {
-            //Id de Productos.cs
-            var producto = productosv.Find(p => p.Id == id);
-            if (producto == null)
-            {
+
+            var dbProducto = await _context.Productos.FindAsync(id);
+            if (dbProducto == null)
                 return BadRequest("Producto no encontrado");
-            }
-            productosv.Remove(producto);
-            return Ok(productosv);
+
+            _context.Productos.Remove(dbProducto);
+            await _context.SaveChangesAsync();
+
+            return Ok(await _context.Productos.ToListAsync());
         }
     }
 }
